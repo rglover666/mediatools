@@ -1,0 +1,47 @@
+########################### NETWORKS
+networks:
+  default:
+    driver: bridge
+  dockervlan:
+    name: dockervlan
+    driver: macvlan
+    driver_opts:
+      parent: eth0
+    ipam:
+      config:
+        - subnet: "192.168.10.0/24"
+          ip_range: "192.168.10.0/24"
+          gateway: "192.168.10.1"
+########################### SERVICES
+services:
+  mediatools:
+    image: raglover/mediatools:0.1
+    hostname: mediatools
+    domainname: domain.com
+    container_name: MediaTools
+    restart: unless-stopped
+    user: 0:0
+    environment:
+      - PGID=1000
+      - PUID=1000
+      - TZ=Etc/UTC
+    networks:
+        dockervlan:
+          mac_address: "00:00:00:00:00:00"
+          ipv4_address: 192.168.10.10 # IP address inside the defined range
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    ports:
+      - 8081:8081
+      - 9091:9091
+      - 9117:9117
+      - 51413:51413
+      - 51413:51413/udp
+    volumes:
+      - /config:/config
+      - /config/downloads:/downloads
+      - /config/TV:/TV
+    deploy:
+      resources: {}
+    devices: []
