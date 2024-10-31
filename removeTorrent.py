@@ -18,7 +18,7 @@ from email.mime.text import MIMEText
 
 try:
     configPath = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'removeTorrent.ini')).replace("\\", "\\\\")
-    Config = configparser.ConfigParser()
+    Config = configparser.ConfigParser(inline_comment_prefixes=(';','#'))
     Config.read(configPath)
     logpath = Config.get('logging', 'path')
 
@@ -88,7 +88,8 @@ Subject: %s
         log.info("Email message successfully constructed.")
         try:
             smtp = Config.get('email', 'smtp_server')
-            server = smtplib.SMTP(smtp, 587)
+            port = Config.get('email', 'smtp_port')
+            server = smtplib.SMTP(smtp, port)
             log.info("Successfully retrieved email server.")
             server.ehlo()
             log.info("Successfully sent ehlo to email server.")
@@ -116,7 +117,9 @@ Subject: %s
 
     try:
         log.info("Connecting to Transmission RPC")
-        tc = transmissionrpc.Client(gethostbyname('transmission.domain.com'), port=9091)
+        host = Config.get('transmission', 'host')
+        port = Config.get('transmission', 'port')
+        tc = transmissionrpc.Client(gethostbyname('transmission.domain.com'), port)
         torrents = tc.get_torrents()
         log.info("Retrieved list of %s torrents" % len(torrents))
         log.info("Looking for torrent %s"  % original)
