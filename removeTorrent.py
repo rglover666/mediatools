@@ -53,7 +53,8 @@ if len(sys.argv) > 4:
     log.info("Season: %s episode: %s." % (seasonNum, episodeNum))
 
     try:
-        t = tvdb_api.Tvdb(apikey="827a143066a6d3770c13a04295e04eb5")
+        key = Config.get('tvdb', 'apikey')
+        t = tvdb_api.Tvdb(apikey=key)
         series = t[tvdb_id]
         log.info("Found series.")
         episode = t[tvdb_id][seasonNum][episodeNum]
